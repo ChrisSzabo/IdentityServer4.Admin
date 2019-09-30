@@ -15,6 +15,11 @@ COPY ["src/Skoruba.IdentityServer4.Admin.EntityFramework.Shared/Skoruba.Identity
 RUN dotnet restore "src/Skoruba.IdentityServer4.Admin/Skoruba.IdentityServer4.Admin.csproj"
 COPY . .
 WORKDIR "/src/src/Skoruba.IdentityServer4.Admin"
+RUN dotnet ef migrations add AspNetIdentityDbInit -c AdminIdentityDbContext -o Data/Migrations/Identity
+RUN dotnet ef migrations add LoggingDbInit -c AdminLogDbContext -o Data/Migrations/Logging
+RUN dotnet ef migrations add IdentityServerConfigurationDbInit -c IdentityServerConfigurationDbContext -o Data/Migrations/IdentityServerConfiguration
+RUN dotnet ef migrations add IdentityServerPersistedGrantsDbInit -c IdentityServerPersistedGrantDbContext -o Data/Migrations/IdentityServerGrants
+
 RUN dotnet build "Skoruba.IdentityServer4.Admin.csproj" -c Release -o /app/build
 
 FROM build AS publish

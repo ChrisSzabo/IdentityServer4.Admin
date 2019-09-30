@@ -1,10 +1,10 @@
 version: '3.4'
 
 services:
-  skoruba.identityserver4.admin:
+  skoruba-identityserver4-admin:
     image: ${DOCKER_REGISTRY-}skorubaidentityserver4admin
     ports:
-      - 9000:80
+      - ${ADMIN_UI_PORT:-9000}:80
     build:
       context: .
       dockerfile: src/Skoruba.IdentityServer4.Admin/Dockerfile
@@ -15,35 +15,35 @@ services:
       - "ConnectionStrings:PersistedGrantDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
       - "ConnectionStrings:IdentityDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
       - "ConnectionStrings:AdminLogDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
-      - "AdminConfiguration:IdentityAdminBaseUrl=http://127.0.0.1.xip.io:9000"
-      - "AdminConfiguration:IdentityAdminRedirectUri=http://127.0.0.1.xip.io:9000/signin-oidc"
-      - "AdminConfiguration:IdentityServerBaseUrl=http://127.0.0.1.xip.io"
+      - "AdminConfiguration:IdentityAdminBaseUrl=http://${ENDPOINT_HOSTNAME:-127.0.0.1.xip.io}:${ADMIN_UI_PORT:-9000}"
+      - "AdminConfiguration:IdentityAdminRedirectUri=http://${ENDPOINT_HOSTNAME:-127.0.0.1.xip.io}:${ADMIN_UI_PORT:-9000}/signin-oidc"
+      - "AdminConfiguration:IdentityServerBaseUrl=http://${ENDPOINT_HOSTNAME:-127.0.0.1.xip.io}:${STS_PORT:-80}"
       - "AdminConfiguration:IdentityRequireHttpsMetadata=false"
     command: dotnet Skoruba.IdentityServer4.Admin.dll /seed
     depends_on:
       - db
-      - skoruba.identityserver4.sts.identity
+      - skoruba-identityserver4-sts-identity
 
-  skoruba.identityserver4.admin.api:
+  skoruba-identityserver4-admin-api:
     image: ${DOCKER_REGISTRY-}skorubaidentityserver4adminapi
     build:
       context: .
       dockerfile: src/Skoruba.IdentityServer4.Admin.Api/Dockerfile
     ports:
-      - 5000:80
+      - ${API_PORT:-5000}:80
     environment:
       - "AdminApiConfiguration:IdentityRequireHttpsMetadata=false"
-      - "AdminApiConfiguration:IdentityServerBaseUrl=http://127.0.0.1.xip.io:5000"
+      - "AdminApiConfiguration:IdentityServerBaseUrl=http://${ENDPOINT_HOSTNAME:-127.0.0.1.xip.io}:${STS_PORT:-80}"
       - "ConnectionStrings:ConfigurationDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
       - "ConnectionStrings:PersistedGrantDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
       - "ConnectionStrings:IdentityDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
       - "ConnectionStrings:AdminLogDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
     container_name: skoruba-identityserver4-admin-api
 
-  skoruba.identityserver4.sts.identity:
+  skoruba-identityserver4-sts-identity:
     image: ${DOCKER_REGISTRY-}skorubaidentityserver4stsidentity
     ports:
-      - 80:80
+      - ${STS_PORT:-80}:80
     build:
       context: .
       dockerfile: src/Skoruba.IdentityServer4.STS.Identity/Dockerfile
@@ -53,13 +53,13 @@ services:
       - "ConnectionStrings:ConfigurationDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
       - "ConnectionStrings:PersistedGrantDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
       - "ConnectionStrings:IdentityDbConnection=Server=db;Database=IdentityServer4Admin;User Id=sa;Password=${DB_PASSWORD:-Password_123};MultipleActiveResultSets=true"
-      - "AdminConfiguration:IdentityAdminBaseUrl=http://127.0.0.1.xip.io:9000"
+      - "AdminConfiguration:IdentityAdminBaseUrl=http://${ENDPOINT_HOSTNAME:-127.0.0.1.xip.io}:${ADMIN_UI_PORT:-9000}"
     depends_on:
       - db
     networks:
       default:
-        aliases:
-          - 127.0.0.1.xip.io
+#        aliases:
+#          - ${ENDPOINT_HOSTNAME:-127.0.0.1.xip.io}
   db:
     image: "mcr.microsoft.com/mssql/server"
     ports:
@@ -77,4 +77,4 @@ volumes:
 
 networks:
   default:
-    driver: bridge
+    driver: overlay

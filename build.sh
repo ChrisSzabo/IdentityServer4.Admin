@@ -1,3 +1,2 @@
-#!/bin/bash
-set -e
-pwsh -C invoke-psake
+#!/usr/bin/env pwsh
+invoke-psake

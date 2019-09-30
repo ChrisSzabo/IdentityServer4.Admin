@@ -1,2 +1,3 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 pwsh -C invoke-psake

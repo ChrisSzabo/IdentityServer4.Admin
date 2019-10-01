@@ -1,11 +1,11 @@
 pipeline {
   parameters{
-    string(name: 'DOCKER_REGISTRY')
-    string(name: 'SWARM_MANAGER_ADDR')
-    string(name: 'ENDPOINT_HOSTNAME')
-    string(name: 'ADMIN_UI_PORT', defaultValue: '9009' )
-    string(name: 'STS_PORT', defaultValue: '9011' )
-    string(name: 'API_PORT',defaultValue: '9012')    
+    string(name: 'DOCKER_REGISTRY', defaultValue: params.DOCKER_REGISTRY)
+    string(name: 'SWARM_MANAGER_ADDR', defaultValue: params.SWARM_MANAGER_ADDR)
+    string(name: 'ENDPOINT_HOSTNAME', defaultValue: params.ENDPOINT_HOSTNAME)
+    string(name: 'ADMIN_UI_PORT', defaultValue: params.ADMIN_UI_PORT ?: '9009' )
+    string(name: 'STS_PORT', defaultValue: params.STS_PORT ?: '9011' )
+    string(name: 'API_PORT',defaultValue: params.API_PORT ?: '9012')    
   }
   agent {
     docker {

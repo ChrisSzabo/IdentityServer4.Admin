@@ -3,9 +3,9 @@ pipeline {
     string(name: 'DOCKER_REGISTRY')
     string(name: 'SWARM_MANAGER_ADDR')
     string(name: 'ENDPOINT_HOSTNAME')
-    string(name: 'SWARM_MANAGER_ADDR')
     string(name: 'ADMIN_UI_PORT', defaultValue: '9009' )
     string(name: 'STS_PORT', defaultValue: '9011' )
+    string(name: 'API_PORT',defaultValue: '9012')    
   }
   agent {
     docker {

@@ -1,11 +1,11 @@
 pipeline {
   parameters{
-    string(name: 'DOCKER_REGISTRY')
-    string(name: 'SWARM_MANAGER_ADDR')
-    string(name: 'ENDPOINT_HOSTNAME')
-    string(name: 'ADMIN_UI_PORT', defaultValue: '9009' )
-    string(name: 'STS_PORT', defaultValue: '9011' )
-    string(name: 'API_PORT',defaultValue: '9012')    
+    string(name: 'DOCKER_REGISTRY', defaultValue: params.DOCKER_REGISTRY)
+    string(name: 'SWARM_MANAGER_ADDR', defaultValue: params.SWARM_MANAGER_ADDR)
+    string(name: 'ENDPOINT_HOSTNAME', defaultValue: params.ENDPOINT_HOSTNAME)
+    string(name: 'ADMIN_UI_PORT', defaultValue: params.ADMIN_UI_PORT ?: '9009' )
+    string(name: 'STS_PORT', defaultValue: params.STS_PORT ?: '9011' )
+    string(name: 'API_PORT',defaultValue: params.API_PORT ?: '9012')    
   }
   agent {
     docker {
@@ -15,7 +15,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        withDockerRegistry(credentialsId: 'b367c07a-2e58-49ab-ab4b-46c980764afe', url: 'https://${params.DOCKER_REGISTRY}') {
+        withDockerRegistry(credentialsId: 'b367c07a-2e58-49ab-ab4b-46c980764afe', url: 'https://${env.DOCKER_REGISTRY}') {
           withCredentials([string(credentialsId: 'identityserver4-endpoint-hostname', variable: 'ID4_HOSTNAME_SECRET')]){
             withEnv(['HOSTNAME_ENDPOINT=$env.ID4_HOSTNAME_SECRET']) {
               sh './build.sh'
@@ -28,13 +28,6 @@ pipeline {
   }
   environment {
     /*These should be volume mounted into the build agents*/
-    DOCKER_REGISTRY = '${params.DOCKER_REGISTRY}'
-    SWARM_MANAGER_ADDR = '${params.SWARM_MANAGER_NODE}'
-    ENDPOINT_HOSTNAME='${params.ENDPOINT_HOSTNAME}'
-    ADMIN_UI_PORT='${params.ADMIN_UI_PORT}'
-    API_PORT='${params.API_PORT}'
-    STS_PORT='${params.STS_PORT}'
-
     TLS_CA = '/home/.docker/ca.pem'
     TLS_CERT = '/home/.docker/cert.pem'
     TLS_KEY = '/home/.docker/key.pem'

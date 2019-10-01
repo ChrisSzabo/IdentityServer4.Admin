@@ -8,13 +8,13 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        withCredentials(bindings: [string(credentialsId: 'identityserver4-endpoint-hostname', variable: 'ID4_HOSTNAME_SECRET')]) {
-          withEnv(overrides: ['HOSTNAME_ENDPOINT=$env.ID4_HOSTNAME_SECRET']) {
-            sh './build.sh'
+        withDockerRegistry(credentialsId: 'b367c07a-2e58-49ab-ab4b-46c980764afe', url: 'https://registry.assertsecurity.io') {
+          withCredentials([string(credentialsId: 'identityserver4-endpoint-hostname', variable: 'ID4_HOSTNAME_SECRET')]){
+              withEnv(['HOSTNAME_ENDPOINT=$env.ID4_HOSTNAME_SECRET']) {
+                  sh './build.sh'
+              }
           }
-
         }
-
       }
     }
   }

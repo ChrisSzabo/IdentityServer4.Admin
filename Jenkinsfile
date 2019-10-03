@@ -19,9 +19,14 @@ pipeline {
         withDockerRegistry(credentialsId: 'b367c07a-2e58-49ab-ab4b-46c980764afe', url: "https://${params.DOCKER_REGISTRY}") {
           withCredentials([string(credentialsId: 'identityserver4-endpoint-hostname', variable: 'ID4_HOSTNAME_SECRET')]){
             withEnv(['HOSTNAME_ENDPOINT=$env.ID4_HOSTNAME_SECRET']) {
+              //Bulid and publish
               sh './build.sh'
-              sh "docker -H ${SWARM_MANAGER_ADDR} --tlsverify stack deploy -c docker-compose.yml IdentityAdmin4 --with-registry-auth"
-              sh "docker -H ${SWARM_MANAGER_ADDR} volume rm IdentityAdmin4_dbdata"
+              //Take down the stack if its already there
+              sh "docker -H ${SWARM_MANAGER_ADDR}--tlsverify stack down IdentityAdmin4"
+              //Delete the data
+              sh "docker -H ${SWARM_MANAGER_ADDR} --tlscacert=${TLS_CA} --tlscert=${TLS_CERT} --tlskey=${TLS_KEY} volume rm IdentityAdmin4_dbdata"              
+              //Deploy stack
+              sh "docker -H ${SWARM_MANAGER_ADDR}--tlsverify --tlscacert=${TLS_CA} --tlscert=${TLS_CERT} --tlskey=${TLS_KEY} stack deploy -c docker-compose.yml IdentityAdmin4 --with-registry-auth"
             }
           }
         }

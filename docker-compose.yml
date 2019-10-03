@@ -70,7 +70,9 @@ services:
       ACCEPT_EULA: "Y"
     volumes:
       - dbdata:/var/opt/mssql
-
+    deploy:
+      placement:
+        constraints: [node.labels.id4-db==true]
 volumes:
   dbdata:
     driver: local

@@ -3,6 +3,7 @@ pipeline {
     string(name: 'DOCKER_REGISTRY', defaultValue: params.DOCKER_REGISTRY)
     string(name: 'SWARM_MANAGER_ADDR', defaultValue: params.SWARM_MANAGER_ADDR)
     string(name: 'ENDPOINT_HOSTNAME', defaultValue: params.ENDPOINT_HOSTNAME)
+    string(name: 'DB_NODE_HOSTNAME',defaultValue:params.DB_NODE_HOSTNAME,description:"The swarm node's hostname where the database service will run. (must match node with label id4-db=true)")
     string(name: 'ADMIN_UI_PORT', defaultValue: params.ADMIN_UI_PORT ?: '9009' )
     string(name: 'STS_PORT', defaultValue: params.STS_PORT ?: '9011' )
     string(name: 'API_PORT',defaultValue: params.API_PORT ?: '9012')    
@@ -19,7 +20,8 @@ pipeline {
           withCredentials([string(credentialsId: 'identityserver4-endpoint-hostname', variable: 'ID4_HOSTNAME_SECRET')]){
             withEnv(['HOSTNAME_ENDPOINT=$env.ID4_HOSTNAME_SECRET']) {
               sh './build.sh'
-              sh "docker -H tcp://${SWARM_MANAGER_ADDR}:2376 --tlsverify --tlscacert=${TLS_CA} --tlscert=${TLS_CERT} --tlskey=${TLS_KEY} stack deploy -c docker-compose.yml IdentityAdmin4 --with-registry-auth"
+              sh "docker -H ${SWARM_MANAGER_ADDR} --tlsverify stack deploy -c docker-compose.yml IdentityAdmin4 --with-registry-auth"
+              sh "docker -H ${SWARM_MANAGER_ADDR} volume rm IdentityAdmin4_dbdata"
             }
           }
         }

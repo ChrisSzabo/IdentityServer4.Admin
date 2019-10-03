@@ -72,7 +72,8 @@ services:
       - dbdata:/var/opt/mssql
     deploy:
       placement:
-        constraints: [node.hostname==${DB_NODE_HOSTNAME:-docker-desktop}]
+        constraints: 
+          - node.hostname == ${DB_NODE_HOSTNAME:-docker-desktop}
 volumes:
   dbdata:
     driver: local
